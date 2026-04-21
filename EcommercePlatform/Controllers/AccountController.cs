@@ -66,35 +66,35 @@ namespace Ecommerce.API.Controllers
         }
 
         // ================= GOOGLE LOGIN =================
-        [HttpPost("login/google")]
-        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
-        {
-            if (!ModelState.IsValid)
-                return _responseHandler.HandleModelStateErrors(ModelState);
+        //[HttpPost("login/google")]
+        //public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return _responseHandler.HandleModelStateErrors(ModelState);
 
-            try
-            {
-                var token = await _authGoogleService.AuthenticateWithGoogleAsync(request.IdToken);
-                return Ok(_responseHandler.Success(token, "Google login successful"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, _responseHandler.ServerError<string>(ex.Message));
-            }
-        }
+        //    try
+        //    {
+        //        var token = await _authGoogleService.AuthenticateWithGoogleAsync(request.IdToken);
+        //        return Ok(_responseHandler.Success(token, "Google login successful"));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, _responseHandler.ServerError<string>(ex.Message));
+        //    }
+        //}
 
         // ================= REGISTER (NORMAL USER) =================
-        [HttpPost("register")]
-        public async Task<ActionResult<Response<RegisterResponse>>> Register([FromForm] RegisterRequest request)
-        {
-            var validation = await _registerValidator.ValidateAsync(request);
-            if (!validation.IsValid)
-                return BadRequest(_responseHandler.BadRequest<object>(
-                    string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
+        //[HttpPost("register")]
+        //public async Task<ActionResult<Response<RegisterResponse>>> Register([FromForm] RegisterRequest request)
+        //{
+        //    var validation = await _registerValidator.ValidateAsync(request);
+        //    if (!validation.IsValid)
+        //        return BadRequest(_responseHandler.BadRequest<object>(
+        //            string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
 
-            var response = await _authService.RegisterAsync(request);
-            return StatusCode((int)response.StatusCode, response);
-        }
+        //    var response = await _authService.RegisterAsync(request);
+        //    return StatusCode((int)response.StatusCode, response);
+        //}
 
         // ================= REGISTER PARENT =================
         [HttpPost("register/parent")]
@@ -113,55 +113,55 @@ namespace Ecommerce.API.Controllers
         }
 
         // ================= VERIFY OTP =================
-        [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
-        {
-            var response = await _authService.VerifyOtpAsync(request);
-            return StatusCode((int)response.StatusCode, response);
-        }
+        //[HttpPost("verify-otp")]
+        //public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
+        //{
+        //    var response = await _authService.VerifyOtpAsync(request);
+        //    return StatusCode((int)response.StatusCode, response);
+        //}
 
         // ================= RESEND OTP =================
-        [HttpPost("resend-otp")]
-        [EnableRateLimiting("SendOtpPolicy")]
-        public async Task<IActionResult> ResendOtp([FromBody] ResendOtpRequest request)
-        {
-            var response = await _authService.ResendOtpAsync(request);
-            return StatusCode((int)response.StatusCode, response);
-        }
+        //[HttpPost("resend-otp")]
+        //[EnableRateLimiting("SendOtpPolicy")]
+        //public async Task<IActionResult> ResendOtp([FromBody] ResendOtpRequest request)
+        //{
+        //    var response = await _authService.ResendOtpAsync(request);
+        //    return StatusCode((int)response.StatusCode, response);
+        //}
 
         // ================= FORGET PASSWORD =================
-        [HttpPost("forget-password")]
-        public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordRequest request)
-        {
-            var validation = await _forgetPasswordValidator.ValidateAsync(request);
-            if (!validation.IsValid)
-                return BadRequest(_responseHandler.BadRequest<object>(
-                    string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
+        //[HttpPost("forget-password")]
+        //public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordRequest request)
+        //{
+        //    var validation = await _forgetPasswordValidator.ValidateAsync(request);
+        //    if (!validation.IsValid)
+        //        return BadRequest(_responseHandler.BadRequest<object>(
+        //            string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
 
-            var response = await _authService.ForgotPasswordAsync(request);
-            return StatusCode((int)response.StatusCode, response);
-        }
+        //    var response = await _authService.ForgotPasswordAsync(request);
+        //    return StatusCode((int)response.StatusCode, response);
+        //}
 
         // ================= VERIFY RESET PASSWORD OTP =================
-        [HttpPost("verify-reset-password")]
-        public async Task<IActionResult> VerifyResetPassword([FromBody] VerifyOtpRequest request)
-        {
-            var response = await _authService.VerifyResetPasswordAsync(request);
-            return StatusCode((int)response.StatusCode, response);
-        }
+        //[HttpPost("verify-reset-password")]
+        //public async Task<IActionResult> VerifyResetPassword([FromBody] VerifyOtpRequest request)
+        //{
+        //    var response = await _authService.VerifyResetPasswordAsync(request);
+        //    return StatusCode((int)response.StatusCode, response);
+        //}
 
         // ================= RESET PASSWORD =================
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
-        {
-            var validation = await _resetPasswordValidator.ValidateAsync(request);
-            if (!validation.IsValid)
-                return BadRequest(_responseHandler.BadRequest<object>(
-                    string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
+        //[HttpPost("reset-password")]
+        //public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        //{
+        //    var validation = await _resetPasswordValidator.ValidateAsync(request);
+        //    if (!validation.IsValid)
+        //        return BadRequest(_responseHandler.BadRequest<object>(
+        //            string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
 
-            var response = await _authService.ResetPasswordAsync(request);
-            return StatusCode((int)response.StatusCode, response);
-        }
+        //    var response = await _authService.ResetPasswordAsync(request);
+        //    return StatusCode((int)response.StatusCode, response);
+        //}
 
         // ================= REFRESH TOKEN =================
         [HttpPost("refresh-token")]
@@ -196,12 +196,12 @@ namespace Ecommerce.API.Controllers
         }
 
         // ================= LOGOUT =================
-        [Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
-        {
-            var response = await _authService.LogoutAsync(User);
-            return StatusCode((int)response.StatusCode, response);
-        }
+        //[Authorize]
+        //[HttpPost("logout")]
+        //public async Task<IActionResult> Logout()
+        //{
+        //    var response = await _authService.LogoutAsync(User);
+        //    return StatusCode((int)response.StatusCode, response);
+        //}
     }
 }

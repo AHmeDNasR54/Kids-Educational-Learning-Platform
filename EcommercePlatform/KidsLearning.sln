@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ecommerce.API", "Ecommerce.API.csproj", "{BE554A99-8ACD-4854-9BFE-6B77602EF6D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KidsLearning.API", "KidsLearning.API.csproj", "{BE554A99-8ACD-4854-9BFE-6B77602EF6D6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ecommerce.Entities", "..\Ecommerce.Entities\Ecommerce.Entities.csproj", "{69FBB2A2-4675-4E8A-9D0F-F0B3FF35A5F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KidsLearning.Entities", "..\Ecommerce.Entities\KidsLearning.Entities.csproj", "{69FBB2A2-4675-4E8A-9D0F-F0B3FF35A5F0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ecommerce.DataAccess", "..\Ecommerce.DataAccess\Ecommerce.DataAccess.csproj", "{7720CE83-10E9-4069-B5CA-4E5519961CBE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KidsLearning.DataAccess", "..\Ecommerce.DataAccess\KidsLearning.DataAccess.csproj", "{7720CE83-10E9-4069-B5CA-4E5519961CBE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ecommerce.Utilities", "..\Ecommerce.Utilities\Ecommerce.Utilities.csproj", "{042E07DB-F151-4984-856D-A9AC94C30E9E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KidsLearning.Utilities", "..\Ecommerce.Utilities\KidsLearning.Utilities.csproj", "{042E07DB-F151-4984-856D-A9AC94C30E9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

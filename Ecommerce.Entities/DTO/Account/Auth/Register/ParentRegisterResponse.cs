@@ -15,7 +15,7 @@ namespace Ecommerce.Entities.DTO.Account.Auth.Register
 
             public string Role { get; set; }
             public string FullName { get; set; }
-            public string? ProfileImageUrl { get; set; }
+            //public string? ProfileImageUrl { get; set; }
 
             public string AccessToken { get; set; }
             public string RefreshToken { get; set; }

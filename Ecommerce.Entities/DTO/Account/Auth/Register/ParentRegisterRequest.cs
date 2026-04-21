@@ -14,7 +14,7 @@ namespace Ecommerce.Entities.DTO.Account.Auth.Register
             public string? PhoneNumber { get; set; }
 
             public string FullName { get; set; }
-            public IFormFile ProfileImageUrl { get; set; }
+            //public IFormFile? ProfileImageUrl { get; set; }
         }
     
 

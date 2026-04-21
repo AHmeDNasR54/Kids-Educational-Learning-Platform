@@ -30,8 +30,8 @@
   </ItemGroup>
 	
   <ItemGroup>
-    <ProjectReference Include="..\Ecommerce.Entities\Ecommerce.Entities.csproj" />
-    <ProjectReference Include="..\Ecommerce.Utilities\Ecommerce.Utilities.csproj" />
+    <ProjectReference Include="..\Ecommerce.Entities\KidsLearning.Entities.csproj" />
+    <ProjectReference Include="..\Ecommerce.Utilities\KidsLearning.Utilities.csproj" />
   </ItemGroup>
 
 </Project>

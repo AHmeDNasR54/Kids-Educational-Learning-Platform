@@ -1,6 +1,6 @@
 ﻿using Ecommerce.DataAccess.ApplicationContext;
 using Ecommerce.DataAccess.Services.Email;
-using Ecommerce.DataAccess.Services.ImageUploading;
+//using Ecommerce.DataAccess.Services.ImageUploading;
 using Ecommerce.DataAccess.Services.OTP;
 using Ecommerce.DataAccess.Services.Token;
 using Ecommerce.Entities.DTO.Account.Auth;
@@ -30,7 +30,7 @@ namespace Ecommerce.DataAccess.Services.Auth
         private readonly IEmailService _emailService;
         private readonly IOTPService _otpService;
         private readonly ITokenStoreService _tokenStoreService;
-        private readonly IImageUploadService _imageUploading;
+        //private readonly IImageUploadService _imageUploading;
         private readonly ILogger<AuthService> _logger;
         private readonly ResponseHandler _responseHandler;
 
@@ -40,8 +40,8 @@ namespace Ecommerce.DataAccess.Services.Auth
                            IOTPService otpService,
                            ResponseHandler responseHandler,
                            ITokenStoreService tokenStoreService,
-                           ILogger<AuthService> logger,
-                           IImageUploadService imageUploading)
+                           ILogger<AuthService> logger
+                           /*IImageUploadService imageUploading*/)
         {
             _userManager = userManager;
             _context = context;
@@ -50,7 +50,7 @@ namespace Ecommerce.DataAccess.Services.Auth
             _responseHandler = responseHandler;
             _tokenStoreService = tokenStoreService;
             _logger = logger;
-            _imageUploading = imageUploading;
+            //_imageUploading = imageUploading;
         }
 
         public async Task<Response<LoginResponse>> LoginAsync(LoginRequest loginRequest)
@@ -176,9 +176,13 @@ namespace Ecommerce.DataAccess.Services.Auth
             {
                 var user = new User
                 {
+                    Id = Guid.NewGuid().ToString(),
+
                     UserName = registerRequest.Email,
                     Email = registerRequest.Email,
                     PhoneNumber = registerRequest.PhoneNumber,
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true
                 };
 
                 var createUserResult = await _userManager.CreateAsync(user, registerRequest.Password);
@@ -190,26 +194,29 @@ namespace Ecommerce.DataAccess.Services.Auth
 
                 await _userManager.AddToRoleAsync(user, "parent");
 
-                string? imageUploaded = registerRequest.ProfileImageUrl != null
-                    ? await _imageUploading.UploadAsync(registerRequest.ProfileImageUrl)
-                    : null;
+                //string? imageUploaded = registerRequest.ProfileImageUrl != null
+                //    ? await _imageUploading.UploadAsync(registerRequest.ProfileImageUrl)
+                //    : null;
 
                 var parent = new Parent
                 {
+
                     User = user,
                     FullName = registerRequest.FullName,
-                    ProfileImageUrl = imageUploaded,
+                    //ProfileImageUrl = imageUploaded,
                     CreatedAt = DateTime.UtcNow,
-                    IsActive = true
+                    IsActive = true,
+                    Id = user.Id,
+                    UserId = user.Id,
+                    
                 };
 
                 await _context.Parent.AddAsync(parent);
-
                 var tokens = await _tokenStoreService.GenerateAndStoreTokensAsync(user.Id, user);
 
-                var otp = await _otpService.GenerateAndStoreOtpAsync(user.Id);
+                //var otp = await _otpService.GenerateAndStoreOtpAsync(user.Id);
 
-                await _emailService.SendOtpEmailAsync(user, otp);
+                //await _emailService.SendOtpEmailAsync(user, otp);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -222,7 +229,7 @@ namespace Ecommerce.DataAccess.Services.Auth
                     PhoneNumber = registerRequest.PhoneNumber,
                     Role = "PARENT",
                     FullName = registerRequest.FullName,
-                    ProfileImageUrl = imageUploaded,
+                    //ProfileImageUrl = imageUploaded,
                     AccessToken = tokens.AccessToken,
                     RefreshToken = tokens.RefreshToken
                 };
@@ -265,6 +272,8 @@ namespace Ecommerce.DataAccess.Services.Auth
                     UserName = registerRequest.Email,
                     Email = registerRequest.Email,
                     PhoneNumber = registerRequest.PhoneNumber,
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true
                 };
 
                 var createUserResult = await _userManager.CreateAsync(user, registerRequest.Password);
@@ -284,16 +293,18 @@ namespace Ecommerce.DataAccess.Services.Auth
                     Country = registerRequest.Country,
                     HourlyRate = registerRequest.HourlyRate,
                     IsVerified = true,
-                    JoinDate = DateTime.Now
+                    JoinDate = DateTime.Now,
+                    Id = user.Id,
+                    UserId = user.Id,
                 };
 
                 await _context.Teacher.AddAsync(teacher);
 
                 var tokens = await _tokenStoreService.GenerateAndStoreTokensAsync(user.Id, user);
 
-                var otp = await _otpService.GenerateAndStoreOtpAsync(user.Id);
+                //var otp = await _otpService.GenerateAndStoreOtpAsync(user.Id);
 
-                await _emailService.SendOtpEmailAsync(user, otp);
+                //await _emailService.SendOtpEmailAsync(user, otp);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
