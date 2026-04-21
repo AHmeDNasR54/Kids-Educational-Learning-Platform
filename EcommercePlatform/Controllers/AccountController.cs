@@ -23,15 +23,24 @@ namespace Ecommerce.API.Controllers
     {
         private readonly IAuthService _authService;
         private readonly ResponseHandler _responseHandler;
+
         private readonly IValidator<RegisterRequest> _registerValidator;
         private readonly IValidator<LoginRequest> _loginValidator;
         private readonly IValidator<ForgetPasswordRequest> _forgetPasswordValidator;
         private readonly IValidator<ResetPasswordRequest> _resetPasswordValidator;
         private readonly IValidator<ChangePasswordRequest> _changePasswordValidator;
+
         private readonly IAuthGoogleService _authGoogleService;
 
-
-        public AccountController(IAuthService authService, ResponseHandler responseHandler, IValidator<RegisterRequest> registerValidator, IValidator<LoginRequest> loginValidator, IValidator<ForgetPasswordRequest> forgetPasswordValidator, IValidator<ResetPasswordRequest> resetPasswordValidator, IAuthGoogleService authGoogleService, IValidator<ChangePasswordRequest> changePasswordValidator)
+        public AccountController(
+            IAuthService authService,
+            ResponseHandler responseHandler,
+            IValidator<RegisterRequest> registerValidator,
+            IValidator<LoginRequest> loginValidator,
+            IValidator<ForgetPasswordRequest> forgetPasswordValidator,
+            IValidator<ResetPasswordRequest> resetPasswordValidator,
+            IAuthGoogleService authGoogleService,
+            IValidator<ChangePasswordRequest> changePasswordValidator)
         {
             _authService = authService;
             _responseHandler = responseHandler;
@@ -42,158 +51,153 @@ namespace Ecommerce.API.Controllers
             _authGoogleService = authGoogleService;
             _changePasswordValidator = changePasswordValidator;
         }
+
+        // ================= LOGIN =================
         [HttpPost("login")]
         public async Task<ActionResult<Response<LoginResponse>>> Login([FromBody] LoginRequest request)
         {
-            ValidationResult validationResult = await _loginValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                string errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                return StatusCode((int)_responseHandler.BadRequest<object>(errors).StatusCode,
-                    _responseHandler.BadRequest<object>(errors));
-            }
+            var validation = await _loginValidator.ValidateAsync(request);
+            if (!validation.IsValid)
+                return BadRequest(_responseHandler.BadRequest<object>(
+                    string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
 
             var response = await _authService.LoginAsync(request);
             return StatusCode((int)response.StatusCode, response);
         }
 
+        // ================= GOOGLE LOGIN =================
         [HttpPost("login/google")]
-        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest googleLoginDto)
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
         {
             if (!ModelState.IsValid)
                 return _responseHandler.HandleModelStateErrors(ModelState);
 
             try
             {
-                var token = await _authGoogleService.AuthenticateWithGoogleAsync(googleLoginDto.IdToken);
-                var response = _responseHandler.Success(token, "Logged in with Google successfully");
-                return StatusCode((int)response.StatusCode, response);
+                var token = await _authGoogleService.AuthenticateWithGoogleAsync(request.IdToken);
+                return Ok(_responseHandler.Success(token, "Google login successful"));
             }
-            catch (UnauthorizedAccessException ex)  // When 'IdToke' is not valid
+            catch (Exception ex)
             {
-                var response = _responseHandler.Unauthorized<string>("Google authentication failed: " + ex.Message);
-                return StatusCode((int)response.StatusCode, response);
-            }
-            catch (UserCreationException ex)  // When user creation faild
-            {
-                var response = _responseHandler.InternalServerError<string>("User creation failed: " + ex.Message);
-                return StatusCode((int)response.StatusCode, response);
-            }
-            catch (Exception ex)  // Server error
-            {
-                var response = _responseHandler.ServerError<string>("An error occurred: " + ex.Message);
-                return StatusCode((int)response.StatusCode, response);
+                return StatusCode(500, _responseHandler.ServerError<string>(ex.Message));
             }
         }
 
+        // ================= REGISTER (NORMAL USER) =================
         [HttpPost("register")]
         public async Task<ActionResult<Response<RegisterResponse>>> Register([FromForm] RegisterRequest request)
         {
-            ValidationResult validationResult = await _registerValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                string errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                return StatusCode((int)_responseHandler.BadRequest<object>(errors).StatusCode,
-                    _responseHandler.BadRequest<object>(errors));
-            }
+            var validation = await _registerValidator.ValidateAsync(request);
+            if (!validation.IsValid)
+                return BadRequest(_responseHandler.BadRequest<object>(
+                    string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
 
             var response = await _authService.RegisterAsync(request);
             return StatusCode((int)response.StatusCode, response);
         }
 
-        [HttpPost("verify-otp")]
-        public async Task<ActionResult<Response<bool>>> VerifyOtp([FromBody] VerifyOtpRequest model)
+        // ================= REGISTER PARENT =================
+        [HttpPost("register/parent")]
+        public async Task<IActionResult> RegisterParent([FromForm] ParentRegisterRequest request)
         {
-            if (!ModelState.IsValid)
-                return StatusCode((int)_responseHandler.BadRequest<object>("Invalid input data.").StatusCode,
-                    _responseHandler.BadRequest<object>("Invalid input data."));
-
-            var result = await _authService.VerifyOtpAsync(model);
-            return StatusCode((int)result.StatusCode, result);
+            var response = await _authService.ParentRegisterAsync(request);
+            return StatusCode((int)response.StatusCode, response);
         }
 
+        // ================= REGISTER TEACHER =================
+        [HttpPost("register/teacher")]
+        public async Task<IActionResult> RegisterTeacher([FromForm] TeacherRegisterRequest request)
+        {
+            var response = await _authService.TeacherRegisterAsync(request);
+            return StatusCode((int)response.StatusCode, response);
+        }
+
+        // ================= VERIFY OTP =================
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
+        {
+            var response = await _authService.VerifyOtpAsync(request);
+            return StatusCode((int)response.StatusCode, response);
+        }
+
+        // ================= RESEND OTP =================
         [HttpPost("resend-otp")]
         [EnableRateLimiting("SendOtpPolicy")]
-        public async Task<ActionResult<Response<string>>> ResendOtp([FromBody] ResendOtpRequest model)
+        public async Task<IActionResult> ResendOtp([FromBody] ResendOtpRequest request)
         {
-            if (!ModelState.IsValid)
-                return StatusCode((int)_responseHandler.BadRequest<object>("Invalid input data.").StatusCode,
-                    _responseHandler.BadRequest<object>("Invalid input data."));
-
-            var result = await _authService.ResendOtpAsync(model);
-            return StatusCode((int)result.StatusCode, result);
+            var response = await _authService.ResendOtpAsync(request);
+            return StatusCode((int)response.StatusCode, response);
         }
+
+        // ================= FORGET PASSWORD =================
         [HttpPost("forget-password")]
-        public async Task<ActionResult<Response<ForgetPasswordResponse>>> ForgetPassword([FromBody] ForgetPasswordRequest request)
+        public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordRequest request)
         {
-            ValidationResult validationResult = await _forgetPasswordValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                string errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                return StatusCode((int)_responseHandler.BadRequest<object>(errors).StatusCode,
-                    _responseHandler.BadRequest<object>(errors));
-            }
+            var validation = await _forgetPasswordValidator.ValidateAsync(request);
+            if (!validation.IsValid)
+                return BadRequest(_responseHandler.BadRequest<object>(
+                    string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
 
             var response = await _authService.ForgotPasswordAsync(request);
             return StatusCode((int)response.StatusCode, response);
         }
 
-        [HttpPost("reset-password")]
-        public async Task<ActionResult<Response<ResetPasswordResponse>>> ResetPassword([FromBody] ResetPasswordRequest request)
+        // ================= VERIFY RESET PASSWORD OTP =================
+        [HttpPost("verify-reset-password")]
+        public async Task<IActionResult> VerifyResetPassword([FromBody] VerifyOtpRequest request)
         {
-            ValidationResult validationResult = await _resetPasswordValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                string errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                return StatusCode((int)_responseHandler.BadRequest<object>(errors).StatusCode,
-                    _responseHandler.BadRequest<object>(errors));
-            }
+            var response = await _authService.VerifyResetPasswordAsync(request);
+            return StatusCode((int)response.StatusCode, response);
+        }
+
+        // ================= RESET PASSWORD =================
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var validation = await _resetPasswordValidator.ValidateAsync(request);
+            if (!validation.IsValid)
+                return BadRequest(_responseHandler.BadRequest<object>(
+                    string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
 
             var response = await _authService.ResetPasswordAsync(request);
             return StatusCode((int)response.StatusCode, response);
         }
 
+        // ================= REFRESH TOKEN =================
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
-                return BadRequest(_responseHandler.BadRequest<string>("RefreshTokenIsNotFound"));
+                return BadRequest(_responseHandler.BadRequest<string>("Refresh token is required"));
+
             try
             {
-                var newTokens = await _authService.RefreshTokenAsync(refreshToken);
-
-                return Ok(_responseHandler.Success<RefreshTokenResponse>(newTokens, "User token refreshed succsessfully"));
+                var result = await _authService.RefreshTokenAsync(refreshToken);
+                return Ok(_responseHandler.Success(result, "Token refreshed successfully"));
             }
             catch (SecurityTokenException ex)
             {
                 return Unauthorized(_responseHandler.Unauthorized<string>(ex.Message));
             }
-            catch (Exception ex)
-            {
-                var error = ex.InnerException?.Message ?? ex.Message;
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    _responseHandler.BadRequest<string>("UnexpectedError" + ": " + error)
-                );
-            }
         }
-        [HttpPost("change-password")]
+
+        // ================= CHANGE PASSWORD =================
         [Authorize]
+        [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
-            var validationResult = await _changePasswordValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                return BadRequest(_responseHandler.BadRequest<object>(errors));
-            }
+            var validation = await _changePasswordValidator.ValidateAsync(request);
+            if (!validation.IsValid)
+                return BadRequest(_responseHandler.BadRequest<object>(
+                    string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
 
             var response = await _authService.ChangePasswordAsync(User, request);
             return StatusCode((int)response.StatusCode, response);
         }
 
-        [HttpPost("logout")]
+        // ================= LOGOUT =================
         [Authorize]
+        [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
             var response = await _authService.LogoutAsync(User);

@@ -3,13 +3,14 @@ using Ecommerce.API.Extensions;
 using Ecommerce.DataAccess.ApplicationContext;
 using Ecommerce.DataAccess.Extensions;
 using Ecommerce.DataAccess.Seeder;
+using Ecommerce.DataAccess.Services.Auth;
 using Ecommerce.Entities.Models.Auth.Identity;
 using Ecommerce.Entities.Shared.Bases;
 using Ecommerce.Utilities.Configurations;
 
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
-
+using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
 namespace EcommercePlatform
@@ -47,7 +48,7 @@ namespace EcommercePlatform
             builder.Services.AddResendOtpRateLimiter();
 
             builder.Services.AddDataProtection()
-                .PersistKeysToDbContext<AuthContext>()
+                .PersistKeysToDbContext<ApplicationDbContext>()
                 .SetApplicationName("AuthStarter");
 
             // For redis 
@@ -57,10 +58,11 @@ namespace EcommercePlatform
                 configuration.AbortOnConnectFail = false;
                 return ConnectionMultiplexer.Connect(configuration);
             });
-
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DevCS")));
             builder.Services.AddSwagger();
             builder.Services.AddEndpointsApiExplorer();
-
+            builder.Services.AddScoped<IAuthService, AuthService>();
             var app = builder.Build();
 
             #region Seed User,Role Data
