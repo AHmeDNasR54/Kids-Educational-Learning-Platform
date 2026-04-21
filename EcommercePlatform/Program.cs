@@ -59,7 +59,7 @@ namespace EcommercePlatform
                 return ConnectionMultiplexer.Connect(configuration);
             });
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DevCS")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ProdCS")));
             builder.Services.AddSwagger();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<IAuthService, AuthService>();
@@ -77,7 +77,7 @@ namespace EcommercePlatform
             }
             #endregion
 
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment()||app.Environment.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
